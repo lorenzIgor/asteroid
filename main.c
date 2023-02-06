@@ -217,8 +217,9 @@ BOOL InitVideo()
   ren1 = SDL_CreateRenderer(win1, -1, SDL_RENDERER_ACCELERATED);
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
   SDL_SetWindowBordered(win1, SDL_TRUE);
-  SDL_SetWindowOpacity(win1, 0.6f);
-
+  // SDL_SetWindowOpacity(win1, 0.6f);
+  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
   return (ren1 != NULL) && (win1 != NULL);
 }
 BOOL InitAudio()
