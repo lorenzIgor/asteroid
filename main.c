@@ -47,10 +47,10 @@
 #define SPEED 800
 #define ROTATION 350
 #define PROJECTILE_SPEED 1000
-#define PROJECTILE_RATE 10
+#define PROJECTILE_RATE 100
 #define ASTEROID_SPEED 50
 #define ASTEROID_ROTATION 35
-#define FPS_RATE 240
+#define FPS_RATE 2400
 
 // MESSAGES
 #define STS_MSG0 "SDL Graphics loaded successfully.\n"
@@ -205,15 +205,20 @@ BOOL InitVideo()
 
   SDL_Init(SDL_INIT_VIDEO);
   IMG_Init(IMG_INIT_PNG);
+
 #ifdef __linux__
-  win1 = SDL_CreateWindow(" > Ast3r0id <", 1000, 0, screen.width, screen.height, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_FULLSCREEN_DESKTOP);
+  win1 = SDL_CreateWindow(" > Ast3r0id <", 0, 0, screen.width, screen.height, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_FULLSCREEN_DESKTOP);
   // SDL_WINDOW_FULLSCREEN_DESKTOP
 #elif _WIN32
   win1 = SDL_CreateWindow(" > Ast3r0id <", 50, 50, screen.width, screen.height, SDL_WINDOW_SHOWN);
 #else
 #endif
-  ren1 = SDL_CreateRenderer(win1, -1, 0);
+
+  ren1 = SDL_CreateRenderer(win1, -1, SDL_RENDERER_ACCELERATED);
+  SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
   SDL_SetWindowBordered(win1, SDL_TRUE);
+  SDL_SetWindowOpacity(win1, 0.6f);
+
   return (ren1 != NULL) && (win1 != NULL);
 }
 BOOL InitAudio()
@@ -534,24 +539,36 @@ void Intro()
   SDL_Event e;
 
   SDL_RenderClear(ren1);
-  Draw(0, 0, background);
+
+  // Draw(0, 0, background);
   sprintf(introStr, "AST3R0ID");
   if (Mix_Playing(1) == 0)
     Mix_PlayChannel(1, intro, 0);
   do
   {
     SDL_RenderClear(ren1);
-    Draw(0, 0, background);
-    DrawText(introStr, 100, 80, wherey, 255, 0, 0, 0, 0, 0, TRUE);
-    DrawText(introStr, 100, 85, wherey + 5, 255, 255, 0, 0, 0, 0, TRUE);
+    // Draw(0, 0, background);
+
+    // printf("x: %d, y: %d \n", x, y);
+
+    DrawText(introStr, 100, screen.width / 2 - 240, wherey, 255, 0, 0, 0, 0, 0, TRUE);
+    DrawText(introStr, 100, screen.width / 2 - 235, wherey + 5, 255, 255, 0, 0, 0, 0, TRUE);
     SDL_RenderPresent(ren1);
     SDL_Delay(10);
     wherey = wherey + 3;
   } while (wherey < 100);
-  sprintf(helpStr0, "Coded by v3l0r3k - 2021 ");
+
+  int x, y;
+
+  SDL_SetRenderDrawColor(ren1, 255, 0, 0, 255);
+  // SDL_Vulkan_GetDrawableSize(win1, &x, &y);
+  // SDL_RenderDrawLine(ren1, 0, 0, x, y);
+  // SDL_Rect _rect1 = {0, 0, x, y};
+  // SDL_RenderDrawRect(ren1, &_rect1);
+  sprintf(helpStr0, "Coded by v3l0r3k, enhaced by ilorenz - 2023 ");
   sprintf(helpStr1, "CONTROLS: ");
   sprintf(helpStr2, "^: UP  v: DOWN <- : LEFT  -> : RIGHT | SPACE : SHOOT ");
-  sprintf(helpStr3, "F: FULLSCREEN |  ESC: EXIT");
+  sprintf(helpStr3, "ESC: EXIT");
   sprintf(helpStr4, "PRESS ANY KEY TO START");
 
   DrawText(helpStr0, 12, 230, 200, 105, 105, 105, 0, 0, 0, TRUE);
@@ -744,13 +761,15 @@ void DrawText(char *string, int size, int x, int y, int fR, int fG, int fB, int 
 // FINAL SCREEN COMPOSITION = DRAW SCREEN
 /* ==========================================================*/
 
-void DrawScreen()
+void DrawScreen(double fps)
 {
   int i, a;
   char pointstext[12];
   char levelstr[12];
   char beststr[30];
+  char fpsStr[15];
 
+  SDL_SetRenderDrawColor(ren1, 0, 0, 0, 255);
   SDL_RenderClear(ren1);
 
   switch (ShipState)
@@ -808,6 +827,8 @@ void DrawScreen()
   DrawText(levelstr, 15, 550, 2, 255, 0, 0, 0, 0, 0, TRUE);
   sprintf(beststr, "BEST SCORE: %d", bestScore);
   DrawText(beststr, 15, 280, 5, 255, 255, 255, 0, 0, 0, TRUE);
+  sprintf(fpsStr, "FPS: %.2lf", fps);
+  DrawText(fpsStr, 15, screen.width - 100, 0, 255, 255, 255, 0, 0, 0, TRUE);
   SDL_RenderPresent(ren1);
 }
 
@@ -1153,11 +1174,14 @@ void UpdateGame(double delta)
 /* ==========================================================*/
 // MAIN LOOP HERE
 /* ==========================================================*/
+
 void Main_Loop()
 {
   /* Update + HandleEvents - Draw */
-  double LastTime, CurrTime, datetime_diff_ms;
+  double LastTime, CurrTime, datetime_diff_ms, counterTick, fps = 0;
+
   LastTime = 0.;
+  counterTick = 0;
 
   while (Running == TRUE)
   {
@@ -1167,14 +1191,21 @@ void Main_Loop()
     CurrTime = clock();
     datetime_diff_ms = (CurrTime - LastTime) / 1000;
 
+    // UpdateGame(datetime_diff_ms / 1000);
+    // LastTime = CurrTime;
+
     if (datetime_diff_ms >= 1000 / FPS_RATE)
     {
+      if (counterTick++ > 10)
+      {
+        fps = 1000 / datetime_diff_ms;
+        counterTick = 0;
+      }
       UpdateGame(datetime_diff_ms / 1000);
       LastTime = CurrTime;
     }
 
-    SDL_SetRenderDrawColor(ren1, 0, 0, 0, 255);
-    DrawScreen();
+    DrawScreen(fps);
   }
 }
 /* ---------------------------------------------- */
