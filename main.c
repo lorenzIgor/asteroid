@@ -1,17 +1,17 @@
 /* *************************** Ast3r0id ***************************   */
-/* Author: V3lorek				       		      */
-/* Date : 2020				               		      */
-/* [+] STRUCTURE: 		|-------------------v		      */
+/* Author: V3lorek / ilorenz                  				       		      */
+/* Date : 2020				               		                              */
+/* [+] STRUCTURE: 		|-------------------v		                        */
 /* [MAIN] -> [NEWGAME] -> [MAIN_LOOP] ->[UPDATEGAME && HANDLE_EVENTS] */
 /*				^	            |	              */
 /*                     [DRAWTOSCREEN] <-      [MOVEOBJECTS]           */
 /* *****************************************************************  */
-/* [Authors of Assets]		      				      */
-/* - Ship: [Seki]from cleanpng.com    				      */
-/* - Asteroid:  pngwave.com	      				      */
+/* [Authors of Assets]		      				                              */
+/* - Ship: [Seki]from cleanpng.com    				                        */
+/* - Asteroid:  pngwave.com	      				                            */
 /* - Theme: [Jan125] opengameart.org                                  */
 /* - Crash : [freesound]                                              */
-/* - Intro : https://mixkit.co/free-sound-effects/intro/    	      */
+/* - Intro : https://mixkit.co/free-sound-effects/intro/    	        */
 /* *****************************************************************  */
 #include <stdio.h>
 #include <stdlib.h>
